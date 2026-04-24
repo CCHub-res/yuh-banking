@@ -149,6 +149,27 @@ h2{font-size:18px;font-weight:600;margin-bottom:12px}
 .detail-row .dl{color:var(--muted);font-size:14px}
 .detail-row .dv{font-weight:500;font-size:14px;text-align:right;max-width:60%;word-break:break-all}
 
+	body.light {
+  --bg: #F5F5F7;
+  --card: #FFFFFF;
+  --border: #E0E0E0;
+  --text: #1A1A2E;
+  --muted: #6B7280;
+  --accent: #FFD700;
+}
+body.light .bank-card.debit {
+  background: linear-gradient(135deg, #E8E8EC, #D1D1D6);
+  color: #1A1A2E;
+}
+body.light .bank-card.credit {
+  background: linear-gradient(135deg, #2C2C3A, #1A1A2E);
+  color: #fff;
+}
+body.light nav#bottomNav {
+  background: rgba(255,255,255,0.95);
+  border-top: 1px solid var(--border);
+}
+
 </style>
 </head>
 <body>
@@ -447,7 +468,7 @@ h2{font-size:18px;font-weight:600;margin-bottom:12px}
   <div class="card">
     <div style="color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Einstellungen</div>
     <div class="card-row" onclick="showScreen('screen-notifications-settings')"><div class="left"><span>&#128276;</span><span class="label">Benachrichtigungen</span></div><span style="color:var(--muted)">&#8250;</span></div>
-    <div class="card-row"><div class="left"><span>&#127912;</span><span class="label">Erscheinungsbild</span></div><span style="color:var(--muted)">Dunkel &#8250;</span></div>
+    <div class="card-row" onclick="toggleTheme()"><div class="left"><span>&#127912;</span><span class="label">Erscheinungsbild</span></div><span id="theme-label" style="color:var(--muted)">Dunkel &#8250;</span></div>
     <div class="card-row"><div class="left"><span>&#127760;</span><span class="label">Sprache</span></div><span style="color:var(--muted)">Deutsch &#8250;</span></div>
   </div>
   <div class="card">
@@ -1162,7 +1183,18 @@ async function saveAddress() {
   toast('Adresse gespeichert');
   switchTab('profile');
 }
-	
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('theme-label').textContent = (isLight ? 'Hell' : 'Dunkel') + ' \u203A';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+
+// Theme beim Laden wiederherstellen
+if(localStorage.getItem('theme') === 'light') {
+  document.body.classList.add('light');
+}
+
 	
 /* ═══════════════════════════════════════════
    CHIP CLICK HANDLERS
