@@ -959,8 +959,21 @@ function onTransferPinDigit(digit) {
 
 async function verifyPinAndTransfer() {
   const errEl=document.getElementById('tr-pin-error');
+
+  // PIN prüfen
+  if(trPin !== userProfile.pin_hash){
+    pinAttempts++;
+    errEl.textContent='Falscher PIN. Versuch '+pinAttempts+'/3';
+    errEl.style.display='block';
+    trPin='';
+    updatePinDots('tr-pin-dots',0);
+    if(pinAttempts>=3){
+      showTransferError('Zu viele Fehlversuche. Transaktion abgebrochen.');
+    }
+    return;
+  }
+
   if(sb){
-    // Real Supabase: call RPC or check pin
     try{
       const {data,error}=await sb.rpc('execute_transfer',{
         p_from_account_id:transferData.fromAccount.id,
