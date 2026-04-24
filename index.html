@@ -434,8 +434,8 @@ h2{font-size:18px;font-weight:600;margin-bottom:12px}
   </div>
   <div class="card">
     <div style="color:var(--muted);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Konto</div>
-    <div class="card-row" onclick="toast('Persönliche Daten - Bald verfügbar')"><div class="left"><span>&#128100;</span><span class="label">Persönliche Daten</span></div><span style="color:var(--muted)">&#8250;</span></div>
-    <div class="card-row" onclick="toast('Adresse - Bald verfügbar')"><div class="left"><span>&#128205;</span><span class="label">Adresse</span></div><span style="color:var(--muted)">&#8250;</span></div>
+    <div class="card-row" onclick="openPersonalDetails()"><div class="left"><span>&#128100;</span><span class="label">Persönliche Daten</span></div><span style="color:var(--muted)">&#8250;</span></div>
+	<div class="card-row" onclick="openAddress()"><div class="left"><span>&#128205;</span><span class="label">Adresse</span></div><span style="color:var(--muted)">&#8250;</span></div>
     <div class="card-row" onclick="toast('Dokumente - Bald verfügbar')"><div class="left"><span>&#128196;</span><span class="label">Dokumente &amp; Kontoauszüge</span></div><span style="color:var(--muted)">&#8250;</span></div>
   </div>
   <div class="card">
@@ -458,6 +458,38 @@ h2{font-size:18px;font-weight:600;margin-bottom:12px}
   </div>
   <p style="text-align:center;color:var(--muted);font-size:12px;margin:8px 0 16px">App-Version 1.0.0</p>
   <button class="btn-danger" style="width:100%;text-align:center" onclick="doLogout()">Abmelden</button>
+</div>
+
+<!-- SCREEN: PERSÖNLICHE DATEN -->
+<div class="screen" id="screen-personal">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+    <span style="cursor:pointer;font-size:20px" onclick="switchTab('profile')">&#8592;</span>
+    <h2 style="margin:0">Persönliche Daten</h2>
+  </div>
+  <div class="card">
+    <div class="input-group"><label>Vorname</label><input id="pd-first" readonly></div>
+    <div class="input-group"><label>Nachname</label><input id="pd-last" readonly></div>
+    <div class="input-group"><label>Geburtsdatum</label><input id="pd-birth" readonly></div>
+    <div class="input-group"><label>Telefon</label><input id="pd-phone" type="tel"></div>
+    <div class="input-group"><label>E-Mail</label><input id="pd-email" readonly></div>
+    <button class="btn-primary" onclick="savePersonalDetails()" style="margin-top:12px;width:100%">Speichern</button>
+  </div>
+</div>
+
+<!-- SCREEN: ADRESSE -->
+<div class="screen" id="screen-address">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+    <span style="cursor:pointer;font-size:20px" onclick="switchTab('profile')">&#8592;</span>
+    <h2 style="margin:0">Adresse</h2>
+  </div>
+  <div class="card">
+    <div class="input-group"><label>Strasse & Nr.</label><input id="addr-street"></div>
+    <div style="display:flex;gap:12px">
+      <div class="input-group" style="flex:1"><label>PLZ</label><input id="addr-zip"></div>
+      <div class="input-group" style="flex:2"><label>Ort</label><input id="addr-city"></div>
+    </div>
+    <button class="btn-primary" onclick="saveAddress()" style="margin-top:12px;width:100%">Speichern</button>
+  </div>
 </div>
 
 
@@ -1058,6 +1090,47 @@ function loadProfile() {
   document.getElementById('profile-email').textContent=currentUser?.email||'';
 }
 
+function openPersonalDetails() {
+  showScreen('screen-personal');
+  if (!userProfile) return;
+  document.getElementById('pd-first').value = userProfile.first_name || '';
+  document.getElementById('pd-last').value = userProfile.last_name || '';
+  document.getElementById('pd-birth').value = userProfile.date_of_birth || '';
+  document.getElementById('pd-phone').value = userProfile.phone || '';
+  document.getElementById('pd-email').value = currentUser?.email || '';
+}
+
+async function savePersonalDetails() {
+  const phone = document.getElementById('pd-phone').value.trim();
+  if (sb && currentUser) {
+    await sb.from('profiles').update({ phone }).eq('id', currentUser.id);
+    userProfile.phone = phone;
+  }
+  toast('Gespeichert');
+  switchTab('profile');
+}
+
+function openAddress() {
+  showScreen('screen-address');
+  if (!userProfile) return;
+  document.getElementById('addr-street').value = userProfile.street || '';
+  document.getElementById('addr-zip').value = userProfile.zip_code || '';
+  document.getElementById('addr-city').value = userProfile.city || '';
+}
+
+async function saveAddress() {
+  const street = document.getElementById('addr-street').value.trim();
+  const zip_code = document.getElementById('addr-zip').value.trim();
+  const city = document.getElementById('addr-city').value.trim();
+  if (sb && currentUser) {
+    await sb.from('profiles').update({ street, zip_code, city }).eq('id', currentUser.id);
+    Object.assign(userProfile, { street, zip_code, city });
+  }
+  toast('Adresse gespeichert');
+  switchTab('profile');
+}
+	
+	
 /* ═══════════════════════════════════════════
    CHIP CLICK HANDLERS
    ═══════════════════════════════════════════ */
